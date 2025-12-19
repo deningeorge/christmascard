@@ -2,15 +2,14 @@
 
 import React, { useState, useRef, useEffect, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Volume2, VolumeX, Star, Loader2 } from "lucide-react";
+import { Volume2, VolumeX, Star, Loader2, RotateCcw } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 
 // --- Data: Bible Verses ---
 const VERSES = [
+  
   { ref: "Luke 2:11", text: "For unto you is born this day in the city of David a Saviour, which is Christ the Lord." },
-  { ref: "Isaiah 9:6", text: "For to us a child is born, to us a son is given... and his name shall be called Wonderful Counselor, Mighty God." },
-  { ref: "John 3:16", text: "For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life." },
-  { ref: "Matthew 1:23", text: "The virgin will conceive and give birth to a son, and they will call him Immanuel (which means 'God with us')." }
+  
 ];
 
 // --- Component: Snow Particle ---
@@ -50,7 +49,7 @@ function CardContent() {
   const videoRef = useRef<HTMLVideoElement | null>(null); 
   
   const searchParams = useSearchParams();
-  const recipientName = searchParams.get("to") || "Friend";
+  const recipientName = searchParams.get("to") || "Kaye";
   const verseIndex = parseInt(searchParams.get("v") || "0");
   const selectedVerse = VERSES[verseIndex] || VERSES[0];
 
@@ -74,6 +73,15 @@ function CardContent() {
       audioRef.current.play().catch(() => console.log("Audio needs user gesture"));
     }
   };
+
+    const handleReplay = () => {
+      setIsOpen(false);
+      setIsMuted(true);
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
+    };
 
   const toggleAudio = () => {
     if (audioRef.current) {
@@ -123,70 +131,126 @@ function CardContent() {
               >
                 <Star className="w-12 h-12 text-holy-gold drop-shadow-[0_0_15px_rgba(212,175,55,0.8)]" fill="currentColor" />
               </motion.div>
-              <h1 className="font-serif text-5xl text-holy-white leading-tight">
-  A Blessed<br />Christmas
+<h1 className="font-serif text-5xl text-holy-white leading-tight">
+  A Blessed<br />Christmas Card
 </h1>
+
+<p className="mt-2 font-serif text-xl text-holy-gold/80">
+  for {recipientName}
+</p>
 
 
 <p className="mt-4 font-serif italic text-sm text-holy-gold/70 tracking-wide">
-  — from Denin George
+  — from Denin 
 </p>
+
 
             </div>
 
-            <button
-              onClick={handleOpen}
-              className="mb-10 px-14 py-4 bg-holy-red text-holy-white rounded-full font-serif text-xl tracking-[0.2em] shadow-2xl active:scale-95 transition-all border border-holy-gold/20 flex items-center gap-3"
-            >
-              {!isVideoLoaded && <Loader2 className="w-5 h-5 animate-spin" />}
-              {isVideoLoaded ? "OPEN" : "PREPARING..."}
-            </button>
+<button
+  onClick={handleOpen}
+  className="relative mb-10 px-14 py-4 rounded-full font-serif text-xl tracking-[0.2em] text-holy-white bg-holy-red border border-holy-gold/30 active:scale-95 transition-all duration-300 overflow-hidden animate-[holyPulse_6s_ease-in-out_infinite]"
+>
+  {/* Star of Bethlehem light ray */}
+  <span className="pointer-events-none absolute -top-1/2 -left-1/2 w-[200%] h-[200%] rotate-45 bg-linear-to-r from-transparent via-holy-gold/20 to-transparent opacity-40 animate-[bethlehemRay_10s_linear_infinite]" />
+
+  {/* Soft holy glow */}
+  <span className="absolute inset-[-6px] rounded-full bg-radial from-holy-gold/40 via-transparent to-transparent blur-xl opacity-70" />
+
+  {/* Button text */}
+  <span className="relative z-10 flex items-center gap-3">
+    {!isVideoLoaded && <Loader2 className="w-5 h-5 animate-spin" />}
+    {isVideoLoaded ? "OPEN" : "PREPARING..."}
+  </span>
+</button>
+
+
+
           </motion.div>
         ) : (
           <motion.div
-            key="message"
-            className="z-30 flex flex-col items-center h-[85vh] w-[90vw] max-w-md p-8 text-center relative glass rounded-[2.5rem] shadow-2xl"
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1.5, ease: "easeOut" }}
-          >
-            <button onClick={toggleAudio} className="absolute top-6 right-6 z-40 text-holy-gold/60">
-              {isMuted ? <VolumeX size={24} /> : <Volume2 size={24} />}
-            </button>
+  key="message"
+  className="z-30 flex flex-col items-center h-[85vh] w-[90vw] max-w-md p-8 text-center relative glass rounded-3xl shadow-2xl"
+  initial={{ opacity: 0, y: 50 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 1.5, ease: "easeOut" }}
+>
 
-            <div className="flex flex-col h-full justify-center items-center space-y-8">
-              <div className="flex flex-col items-center">
-                <h2 className="font-serif text-2xl text-holy-cream">Merry Christmas,</h2>
-                <h2 className="font-serif text-4xl text-holy-gold mt-2">{recipientName}</h2>
-              </div>
-
-              <div className="w-16 h-[1px] bg-holy-gold/40" />
-
-              <div className="space-y-6">
-                <p className="font-serif text-xl italic leading-relaxed text-holy-cream/90 px-2">
-                  &quot;{selectedVerse.text}&quot;
-                </p>
-                <p className="font-sans text-[10px] tracking-[0.3em] uppercase text-holy-gold">
-                  — {selectedVerse.ref}
-                </p>
-              </div>
-
-              <p className="font-sans font-light text-xs text-holy-cream/60 max-w-[250px]">
-                May the gift of Jesus bring peace and hope to your home this season.
-              </p>
-            </div>
-
-            <div className="mt-auto pb-3 flex flex-col items-center gap-1">
-  <div className="font-serif text-holy-gold/80 italic text-lg">
-    — from Denin George ❤️
+  {/* Top controls */}
+  <div className="absolute top-6 right-6 z-40 flex gap-3">
+    <button 
+      onClick={handleReplay} 
+      className="text-holy-gold/60 hover:text-holy-gold transition-colors"
+      title="Replay"
+    >
+      <RotateCcw size={24} />
+    </button>
+    <button 
+      onClick={toggleAudio} 
+      className="text-holy-gold/60 hover:text-holy-gold transition-colors"
+      title={isMuted ? "Unmute" : "Mute"}
+    >
+      {isMuted ? <VolumeX size={24} /> : <Volume2 size={24} />}
+    </button>
   </div>
 
-  <div className="text-[9px] tracking-widest text-holy-cream/40">
-    Custom made · Coded by Denin George · © {new Date().getFullYear()}
-  </div>
+  <div className="flex flex-col h-full justify-center items-center space-y-8">
+
+    {/* Greeting */}
+    <div className="flex flex-col items-center">
+      <h2 className="font-serif text-2xl text-holy-cream tracking-wide">
+        Merry Christmas,
+      </h2>
+      <h2 className="font-serif text-4xl text-holy-gold mt-2 font-bold tracking-wide">
+        {recipientName}
+      </h2>
+    </div>
+
+    {/* Divider */}
+    <div className="w-20 h-[1px] bg-holy-gold/40 my-2" />
+
+  {/* Personal message for a new acquaintance */}
+<div className="max-w-[340px] text-left">
+  <p className="text-sm italic text-holy-cream/90 leading-relaxed">
+    {recipientName},<br />
+    Wishing you a joyful Christmas and a wonderful start to the year 2026.<br /><br />
+    May this season bring happiness, warmth, and many new memories.
+  </p>
+
+  <p className="text-xs italic text-holy-gold mt-2 text-right">
+    — Denin George
+  </p>
 </div>
 
-          </motion.div>
+
+    {/* Soft divider */}
+    <div className="w-16 h-[1px] bg-holy-gold/30 my-3" />
+
+    {/* Bible verse */}
+    <div className="space-y-2 max-w-[320px]">
+      <p className="font-serif text-lg italic leading-relaxed text-holy-cream/90 px-2">
+        &quot;{selectedVerse.text}&quot;
+      </p>
+      <p className="font-sans text-[10px] tracking-[0.3em] uppercase text-holy-gold text-right">
+        — {selectedVerse.ref}
+      </p>
+    </div>
+
+  </div>
+
+  {/* Footer */}
+  <div className="mt-auto pb-4 flex flex-col items-center gap-1">
+    <div className="font-serif text-holy-gold/80 italic text-lg tracking-wide">
+      — from Denin George ❤️
+    </div>
+
+    <div className="text-[9px] tracking-widest text-holy-cream/40">
+      Hand-crafted & lovingly coded by Denin George · © 2025
+    </div>
+  </div>
+
+</motion.div>
+
         )}
       </AnimatePresence>
     </div>

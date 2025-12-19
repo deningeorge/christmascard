@@ -1,24 +1,91 @@
 @import "tailwindcss";
 
+/* -------------------- */
+/* CUSTOM THEME & FONTS */
+/* -------------------- */
 @theme {
-  /* Defining your custom "Holy" palette */
+  /* Holy color palette */
   --color-holy-red: #4A0E0E;
   --color-holy-gold: #D4AF37;
   --color-holy-blue: #0F172A;
   --color-holy-cream: #FAF9F6;
   --color-holy-glow: #FDE68A;
 
-  /* Defining the fonts */
+  /* Fonts */
   --font-serif: var(--font-playfair), serif;
   --font-sans: var(--font-lato), sans-serif;
+ 
 
   /* Custom animations */
   --animate-spin-slow: spin 8s linear infinite;
 }
 
-/* Base styles for the body */
+/* -------------------- */
+/* BASE STYLES */
+/* -------------------- */
 body {
   background-color: var(--color-holy-blue);
   color: var(--color-holy-cream);
   overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* -------------------- */
+/* FONT CLASSES */
+/* -------------------- */
+.font-serif {
+  font-family: var(--font-serif);
+}
+
+.font-sans {
+  font-family: var(--font-sans);
+}
+
+
+/* -------------------- */
+/* KEYFRAMES / ANIMATIONS */
+/* -------------------- */
+
+/* Soft glowing pulse for holy button */
+@keyframes holyPulse {
+  0% {
+    box-shadow: 0 0 18px rgba(212,175,55,0.25),
+                0 0 36px rgba(212,175,55,0.15);
+  }
+  50% {
+    box-shadow: 0 0 32px rgba(212,175,55,0.45),
+                0 0 64px rgba(212,175,55,0.25);
+  }
+  100% {
+    box-shadow: 0 0 18px rgba(212,175,55,0.25),
+                0 0 36px rgba(212,175,55,0.15);
+  }
+}
+
+/* Bethlehem star ray movement */
+@keyframes bethlehemRay {
+  0%   { transform: translateX(-60%) rotate(45deg); }
+  100% { transform: translateX(60%) rotate(45deg); }
+}
+
+/* Shimmer effect (optional for stars/snow) */
+@keyframes shimmer {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* -------------------- */
+/* UTILITY CLASSES FOR ANIMATIONS */
+/* -------------------- */
+.animate-holyPulse {
+  animation: holyPulse 6s ease-in-out infinite;
+}
+
+.animate-bethlehemRay {
+  animation: bethlehemRay 10s linear infinite;
+}
+
+.animate-spin-slow {
+  animation: spin 8s linear infinite;
 }
