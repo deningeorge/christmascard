@@ -149,18 +149,26 @@ function CardContent() {
 
 <button
   onClick={handleOpen}
-  className="relative mb-10 px-14 py-4 rounded-full font-serif text-xl tracking-[0.2em] text-holy-white bg-holy-red border border-holy-gold/30 active:scale-95 transition-all duration-300 overflow-hidden animate-[holyPulse_6s_ease-in-out_infinite]"
+  disabled={!isVideoLoaded}
+  className="group relative mb-10 px-10 py-3.5 rounded-full font-serif text-lg tracking-[0.15em] text-holy-cream bg-holy-red border border-holy-gold/30 active:scale-95 transition-all duration-300 overflow-hidden animate-holyPulse disabled:opacity-70"
 >
-  {/* Star of Bethlehem light ray */}
-  <span className="pointer-events-none absolute -top-1/2 -left-1/2 w-[200%] h-[200%] rotate-45 bg-linear-to-r from-transparent via-holy-gold/20 to-transparent opacity-40 animate-[bethlehemRay_10s_linear_infinite]" />
+  {/* 1. Star of Bethlehem light ray (The shimmer) */}
+  <span className="pointer-events-none absolute inset-0 w-[200%] h-full bg-linear-to-r from-transparent via-holy-gold/20 to-transparent opacity-40 animate-bethlehemRay" 
+        style={{ transform: 'rotate(45deg)' }} />
 
-  {/* Soft holy glow */}
-  <span className="absolute inset-[-6px] rounded-full bg-radial from-holy-gold/40 via-transparent to-transparent blur-xl opacity-70" />
+  {/* 2. Focused Glow (Centered and smaller for mobile) */}
+  <span className="absolute inset-0 rounded-full bg-radial from-holy-gold/20 to-transparent blur-lg opacity-60 group-hover:opacity-100 transition-opacity" />
 
-  {/* Button text */}
-  <span className="relative z-10 flex items-center gap-3">
-    {!isVideoLoaded && <Loader2 className="w-5 h-5 animate-spin" />}
-    {isVideoLoaded ? "OPEN" : "PREPARING..."}
+  {/* 3. Button Content */}
+  <span className="relative z-10 flex items-center justify-center gap-3">
+    {!isVideoLoaded ? (
+      <>
+        <Loader2 className="w-4 h-4 animate-spin text-holy-gold" />
+        <span className="text-sm tracking-widest uppercase">Preparing</span>
+      </>
+    ) : (
+      "OPEN"
+    )}
   </span>
 </button>
 

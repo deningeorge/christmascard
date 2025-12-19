@@ -64,11 +64,11 @@ body {
 }
 
 /* Bethlehem star ray movement */
-@keyframes bethlehemRay {
-  0%   { transform: translateX(-60%) rotate(45deg); }
-  100% { transform: translateX(60%) rotate(45deg); }
-}
 
+@keyframes bethlehemRay {
+  0%   { transform: translateX(-100%) rotate(45deg); }
+  100% { transform: translateX(100%) rotate(45deg); }
+}
 /* Shimmer effect (optional for stars/snow) */
 @keyframes shimmer {
   0%   { transform: translateX(-100%); }
