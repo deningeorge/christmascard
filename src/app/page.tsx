@@ -124,11 +124,14 @@ function CardContent() {
                 <Star className="w-12 h-12 text-holy-gold drop-shadow-[0_0_15px_rgba(212,175,55,0.8)]" fill="currentColor" />
               </motion.div>
               <h1 className="font-serif text-5xl text-holy-white leading-tight">
-                Merry<br />Christmas
-              </h1>
-              <p className="font-sans font-light text-lg tracking-wide opacity-80 text-holy-cream">
-                Celebrating the Birth of Christ
-              </p>
+  A Blessed<br />Christmas
+</h1>
+
+
+<p className="mt-4 font-serif italic text-sm text-holy-gold/70 tracking-wide">
+  — from Denin George
+</p>
+
             </div>
 
             <button
@@ -173,9 +176,16 @@ function CardContent() {
               </p>
             </div>
 
-            <div className="mt-auto pb-4 font-serif text-holy-gold/80 italic text-lg">
-              — from Denin ❤️
-            </div>
+            <div className="mt-auto pb-3 flex flex-col items-center gap-1">
+  <div className="font-serif text-holy-gold/80 italic text-lg">
+    — from Denin George ❤️
+  </div>
+
+  <div className="text-[9px] tracking-widest text-holy-cream/40">
+    Custom made · Coded by Denin George · © {new Date().getFullYear()}
+  </div>
+</div>
+
           </motion.div>
         )}
       </AnimatePresence>
