@@ -150,24 +150,26 @@ function CardContent() {
 <button
   onClick={handleOpen}
   disabled={!isVideoLoaded}
-  className="group relative mb-10 px-10 py-3.5 rounded-full font-serif text-lg tracking-[0.15em] text-holy-cream bg-holy-red border border-holy-gold/30 active:scale-95 transition-all duration-300 overflow-hidden animate-holyPulse disabled:opacity-70"
+  className="group relative mb-10 px-10 h-14 rounded-full font-serif text-lg tracking-[0.15em] text-holy-cream bg-holy-red border border-holy-gold/30 active:scale-95 transition-all duration-300 overflow-hidden animate-holyPulse disabled:opacity-70 flex items-center justify-center"
 >
-  {/* 1. Star of Bethlehem light ray (The shimmer) */}
-  <span className="pointer-events-none absolute inset-0 w-[200%] h-full bg-linear-to-r from-transparent via-holy-gold/20 to-transparent opacity-40 animate-bethlehemRay" 
-        style={{ transform: 'rotate(45deg)' }} />
+  {/* 1. Star of Bethlehem light ray */}
+  <span 
+    className="pointer-events-none absolute inset-0 w-[200%] h-full bg-linear-to-r from-transparent via-holy-gold/20 to-transparent opacity-40 animate-bethlehemRay" 
+    style={{ transform: 'rotate(45deg)' }} 
+  />
 
-  {/* 2. Focused Glow (Centered and smaller for mobile) */}
+  {/* 2. Focused Glow */}
   <span className="absolute inset-0 rounded-full bg-radial from-holy-gold/20 to-transparent blur-lg opacity-60 group-hover:opacity-100 transition-opacity" />
 
-  {/* 3. Button Content */}
-  <span className="relative z-10 flex items-center justify-center gap-3">
+  {/* 3. Button Content - FIXED ALIGNMENT */}
+  <span className="relative z-10 flex items-center justify-center gap-3 -translate-y-[1px]">
     {!isVideoLoaded ? (
       <>
         <Loader2 className="w-4 h-4 animate-spin text-holy-gold" />
-        <span className="text-sm tracking-widest uppercase">Preparing</span>
+        <span className="text-sm tracking-widest uppercase pb-[1px]">Preparing</span>
       </>
     ) : (
-      "OPEN"
+      <span className="pb-[2px]">OPEN</span>
     )}
   </span>
 </button>
