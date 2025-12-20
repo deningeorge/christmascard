@@ -6,13 +6,10 @@ import { Volume2, VolumeX, Star, Loader2, RotateCcw } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 
 // --- Data: Bible Verses ---
-const VERSES = [
-  
-  { ref: "Luke 2:11", text: "For unto you is born this day in the city of David a Saviour, which is Christ the Lord." },
-  
-];
+const VERSES = [{ ref: "Luke 2:11", text: "For unto you is born this day in the city of David a Saviour, which is Christ the Lord." }];
 
-// --- Component: Snow Particle ---
+const SHEETDB_URL = "https://sheetdb.io/api/v1/tgo9mz1m8qunj";
+
 const Snow = () => {
   const snowflakes = React.useMemo(() => {
     return Array.from({ length: 40 }).map((_, i) => ({
@@ -40,28 +37,61 @@ const Snow = () => {
   );
 };
 
-// --- Main Content Component ---
 function CardContent() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+  
+  // 1. Initialize as empty to prevent "Kaye" flash
+  const [recipientName, setRecipientName] = useState("");
+  const [customMessage, setCustomMessage] = useState("");
+  const [isLoadingData, setIsLoadingData] = useState(true);
+
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null); 
-  
   const searchParams = useSearchParams();
-  const recipientName = searchParams.get("to") || "Kaye";
-  const verseIndex = parseInt(searchParams.get("v") || "0");
-  const selectedVerse = VERSES[verseIndex] || VERSES[0];
+  const userId = searchParams.get("id");
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsVideoLoaded(true);
-    }, 3500);
+    async function loadPersonalizedData() {
+      // Default fallback data
+      const defaultName = "Kaye";
+      const defaultMsg = "Wishing you a joyful Christmas and a wonderful start to the year 2026.\n\nMay this season bring happiness, warmth, and many new memories.";
 
-    if (videoRef.current && videoRef.current.readyState >= 2) {
-      setIsVideoLoaded(true);
+      if (!userId) {
+        setRecipientName(defaultName);
+        setCustomMessage(defaultMsg);
+        setIsLoadingData(false);
+        return;
+      }
+
+      try {
+        const response = await fetch(`${SHEETDB_URL}/search?id=${userId}`);
+        const data = await response.json();
+        
+        if (data && data.length > 0) {
+          setRecipientName(data[0].name);
+          setCustomMessage(data[0].message);
+        } else {
+          // If ID is in URL but not found in Sheet
+          setRecipientName(defaultName);
+          setCustomMessage(defaultMsg);
+        }
+      } catch (error) {
+        console.error("SheetDB Error:", error);
+        setRecipientName(defaultName);
+        setCustomMessage(defaultMsg);
+      } finally {
+        setIsLoadingData(false);
+      }
     }
 
+    loadPersonalizedData();
+  }, [userId]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsVideoLoaded(true), 3500);
+    if (videoRef.current && videoRef.current.readyState >= 2) setIsVideoLoaded(true);
     return () => clearTimeout(timer);
   }, []);
 
@@ -70,18 +100,18 @@ function CardContent() {
     setIsMuted(false);
     if (audioRef.current) {
       audioRef.current.volume = 0.4;
-      audioRef.current.play().catch(() => console.log("Audio needs user gesture"));
+      audioRef.current.play().catch(() => {});
     }
   };
 
-    const handleReplay = () => {
-      setIsOpen(false);
-      setIsMuted(true);
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.currentTime = 0;
-      }
-    };
+  const handleReplay = () => {
+    setIsOpen(false);
+    setIsMuted(true);
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+  };
 
   const toggleAudio = () => {
     if (audioRef.current) {
@@ -93,15 +123,10 @@ function CardContent() {
 
   return (
     <div className="relative h-[100dvh] w-full flex items-center justify-center bg-holy-blue overflow-hidden">
-      
       <video
         ref={videoRef}
-        autoPlay
-        muted
-        loop
-        playsInline
+        autoPlay muted loop playsInline
         onLoadedData={() => setIsVideoLoaded(true)} 
-        onError={() => setIsVideoLoaded(true)}
         className={`absolute inset-0 w-full h-full object-cover z-0 transition-opacity duration-2000 ${
           isVideoLoaded ? "opacity-40" : "opacity-0"
         }`}
@@ -125,156 +150,96 @@ function CardContent() {
             transition={{ duration: 1.2 }}
           >
             <div className="flex flex-col items-center gap-6 mt-10 p-8 glass rounded-[2.5rem]">
-              <motion.div
-                animate={{ scale: [1, 1.1, 1] }}
-                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              >
+              <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ duration: 4, repeat: Infinity }}>
                 <Star className="w-12 h-12 text-holy-gold drop-shadow-[0_0_15px_rgba(212,175,55,0.8)]" fill="currentColor" />
               </motion.div>
-<h1 className="font-serif text-5xl text-holy-white leading-tight">
-  A Blessed<br />Christmas Card
-</h1>
+              <h1 className="font-serif text-5xl text-holy-white leading-tight">A Blessed<br />Christmas Card</h1>
 
-<p className="mt-2 font-serif text-xl text-holy-gold/80">
-  for {recipientName}
-</p>
+              {/* 2. Only show the name once loaded to prevent flashing */}
+              <div className="min-h-[2rem] flex items-center justify-center">
+                {isLoadingData ? (
+                  <div className="w-24 h-6 bg-holy-gold/10 animate-pulse rounded-md" />
+                ) : (
+                  <motion.p 
+                    initial={{ opacity: 0 }} 
+                    animate={{ opacity: 1 }}
+                    className="font-serif text-xl text-holy-gold/80"
+                  >
+                    for {recipientName}
+                  </motion.p>
+                )}
+              </div>
 
-
-<p className="mt-4 font-serif italic text-sm text-holy-gold/70 tracking-wide">
-  — from Denin 
-</p>
-
-
+              <p className="font-serif italic text-sm text-holy-gold/70 tracking-wide">— from Denin</p>
             </div>
 
-<button
-  onClick={handleOpen}
-  disabled={!isVideoLoaded}
-  className="group relative mb-10 px-10 h-14 rounded-full font-serif text-lg tracking-[0.15em] text-holy-cream bg-holy-red border border-holy-gold/30 active:scale-95 transition-all duration-300 overflow-hidden animate-holyPulse disabled:opacity-70 flex items-center justify-center"
->
-  {/* 1. Star of Bethlehem light ray */}
-  <span 
-    className="pointer-events-none absolute inset-0 w-[200%] h-full bg-linear-to-r from-transparent via-holy-gold/20 to-transparent opacity-40 animate-bethlehemRay" 
-    style={{ transform: 'rotate(45deg)' }} 
-  />
-
-  {/* 2. Focused Glow */}
-  <span className="absolute inset-0 rounded-full bg-radial from-holy-gold/20 to-transparent blur-lg opacity-60 group-hover:opacity-100 transition-opacity" />
-
-  {/* 3. Button Content - FIXED ALIGNMENT */}
-  <span className="relative z-10 flex items-center justify-center gap-3 -translate-y-[1px]">
-    {!isVideoLoaded ? (
-      <>
-        <Loader2 className="w-4 h-4 animate-spin text-holy-gold" />
-        <span className="text-sm tracking-widest uppercase pb-[1px]">Preparing</span>
-      </>
-    ) : (
-      <span className="pb-[2px]">OPEN</span>
-    )}
-  </span>
-</button>
-
-
-
+            <div className="flex flex-col items-center gap-3 mb-6">
+              <button
+                onClick={handleOpen}
+                disabled={!isVideoLoaded || isLoadingData}
+                className="group relative px-10 h-14 rounded-full font-serif text-lg tracking-[0.15em] text-holy-cream bg-holy-red border border-holy-gold/30 active:scale-95 transition-all duration-300 overflow-hidden animate-holyPulse disabled:opacity-70 flex items-center justify-center"
+              >
+                <span className="relative z-10 flex items-center justify-center gap-3">
+                  {(!isVideoLoaded || isLoadingData) ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin text-holy-gold" />
+                      <span className="text-sm tracking-widest uppercase">Preparing</span>
+                    </>
+                  ) : (
+                    <span className="pb-[2px]">OPEN</span>
+                  )}
+                </span>
+              </button>
+              <div className="text-[9px] tracking-widest text-holy-cream/40">Denin George · © 2025</div>
+            </div>
           </motion.div>
         ) : (
           <motion.div
-  key="message"
-  className="z-30 flex flex-col items-center h-[85vh] w-[90vw] max-w-md p-8 text-center relative glass rounded-3xl shadow-2xl"
-  initial={{ opacity: 0, y: 50 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ duration: 1.5, ease: "easeOut" }}
->
+            key="message"
+            className="z-30 flex flex-col items-center h-[85vh] w-[90vw] max-w-md p-8 text-center relative glass rounded-3xl shadow-2xl"
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.5 }}
+          >
+            <div className="absolute top-6 right-6 z-40 flex gap-3">
+              <button onClick={handleReplay} className="text-holy-gold/60 hover:text-holy-gold"><RotateCcw size={24} /></button>
+              <button onClick={toggleAudio} className="text-holy-gold/60 hover:text-holy-gold">{isMuted ? <VolumeX size={24} /> : <Volume2 size={24} />}</button>
+            </div>
 
-  {/* Top controls */}
-  <div className="absolute top-6 right-6 z-40 flex gap-3">
-    <button 
-      onClick={handleReplay} 
-      className="text-holy-gold/60 hover:text-holy-gold transition-colors"
-      title="Replay"
-    >
-      <RotateCcw size={24} />
-    </button>
-    <button 
-      onClick={toggleAudio} 
-      className="text-holy-gold/60 hover:text-holy-gold transition-colors"
-      title={isMuted ? "Unmute" : "Mute"}
-    >
-      {isMuted ? <VolumeX size={24} /> : <Volume2 size={24} />}
-    </button>
-  </div>
+            <div className="flex flex-col h-full justify-center items-center space-y-8">
+              <div className="flex flex-col items-center">
+                <h2 className="font-serif text-2xl text-holy-cream tracking-wide">Merry Christmas,</h2>
+                <h2 className="font-serif text-4xl text-holy-gold mt-2 font-bold tracking-wide">{recipientName}</h2>
+              </div>
+              <div className="w-20 h-[1px] bg-holy-gold/40 my-2" />
+              <div className="max-w-[340px] text-left">
+                <p className="text-sm italic text-holy-cream/90 leading-relaxed whitespace-pre-line">
+                  {recipientName},<br />
+                  {customMessage}
+                </p>
+                <p className="text-xs italic text-holy-gold mt-2 text-right">— Denin</p>
+              </div>
+              <div className="w-16 h-[1px] bg-holy-gold/30 my-3" />
+              <div className="space-y-2 max-w-[320px]">
+                <p className="font-serif text-lg italic leading-relaxed text-holy-cream/90 px-2">&quot;{VERSES[0].text}&quot;</p>
+                <p className="font-sans text-[10px] tracking-[0.3em] uppercase text-holy-gold text-right">— {VERSES[0].ref}</p>
+              </div>
+            </div>
 
-  <div className="flex flex-col h-full justify-center items-center space-y-8">
-
-    {/* Greeting */}
-    <div className="flex flex-col items-center">
-      <h2 className="font-serif text-2xl text-holy-cream tracking-wide">
-        Merry Christmas,
-      </h2>
-      <h2 className="font-serif text-4xl text-holy-gold mt-2 font-bold tracking-wide">
-        {recipientName}
-      </h2>
-    </div>
-
-    {/* Divider */}
-    <div className="w-20 h-[1px] bg-holy-gold/40 my-2" />
-
-  {/* Personal message for a new acquaintance */}
-<div className="max-w-[340px] text-left">
-  <p className="text-sm italic text-holy-cream/90 leading-relaxed">
-    {recipientName},<br />
-    Wishing you a joyful Christmas and a wonderful start to the year 2026.<br /><br />
-    May this season bring happiness, warmth, and many new memories.
-  </p>
-
-  <p className="text-xs italic text-holy-gold mt-2 text-right">
-    — Denin George
-  </p>
-</div>
-
-
-    {/* Soft divider */}
-    <div className="w-16 h-[1px] bg-holy-gold/30 my-3" />
-
-    {/* Bible verse */}
-    <div className="space-y-2 max-w-[320px]">
-      <p className="font-serif text-lg italic leading-relaxed text-holy-cream/90 px-2">
-        &quot;{selectedVerse.text}&quot;
-      </p>
-      <p className="font-sans text-[10px] tracking-[0.3em] uppercase text-holy-gold text-right">
-        — {selectedVerse.ref}
-      </p>
-    </div>
-
-  </div>
-
-  {/* Footer */}
-  <div className="mt-auto pb-4 flex flex-col items-center gap-1">
-    <div className="font-serif text-holy-gold/80 italic text-lg tracking-wide">
-      — from Denin George ❤️
-    </div>
-
-    <div className="text-[9px] tracking-widest text-holy-cream/40">
-      Hand-crafted & lovingly coded by Denin George · © 2025
-    </div>
-  </div>
-
-</motion.div>
-
+            <div className="mt-auto pb-4 flex flex-col items-center gap-1">
+              <div className="font-serif text-holy-gold/80 italic text-lg tracking-wide">— from Denin George ❤️</div>
+              <div className="text-[9px] tracking-widest text-holy-cream/40">Hand-crafted & lovingly coded by Denin George · © 2025</div>
+            </div>
+          </motion.div>
         )}
       </AnimatePresence>
     </div>
   );
 }
 
-// --- FINAL EXPORT ---
 export default function ChristmasCardPage() {
   return (
-    <Suspense fallback={
-      <div className="h-screen w-full bg-holy-blue flex items-center justify-center">
-        <Loader2 className="w-10 h-10 animate-spin text-holy-gold" />
-      </div>
-    }>
+    <Suspense fallback={<div className="h-screen w-full bg-holy-blue flex items-center justify-center"><Loader2 className="w-10 h-10 animate-spin text-holy-gold" /></div>}>
       <CardContent />
     </Suspense>
   );
