@@ -7,17 +7,19 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata({ 
   searchParams 
 }: { 
-  searchParams: { id?: string } 
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }> 
 }): Promise<Metadata> {
-  const id = searchParams.id;
+  // 1. AWAIT the searchParams (Crucial for Next.js 15)
+  const params = await searchParams;
+  const id = typeof params.id === 'string' ? params.id : undefined;
+  
   const baseUrl = "https://deningeorge.vercel.app";
   
-  // 1. Create a unique title for each person
-  // If id is 'tin', name becomes 'Tin'
+  // 2. Logic for unique content
   const personName = id ? id.charAt(0).toUpperCase() + id.slice(1) : "";
   const dynamicTitle = id ? `A Christmas Message for ${personName}` : "A Christmas Message";
   const dynamicDesc = id 
-    ? `Denin has sent a special Christmas card to ${personName}. Open to view.` 
+    ? `Denin has sent a special Christmas card to ${personName}.` 
     : "Celebrating the Birth of Christ with a special message.";
 
   const shareUrl = id ? `${baseUrl}/?id=${id}` : baseUrl;
@@ -29,7 +31,7 @@ export async function generateMetadata({
       canonical: shareUrl,
     },
     openGraph: {
-      title: dynamicTitle, // Crucial: Makes the link unique to Facebook
+      title: dynamicTitle,
       description: dynamicDesc,
       url: shareUrl, 
       siteName: "Christmas Card",
