@@ -14,12 +14,32 @@ export async function generateMetadata({
   const id = typeof params.id === 'string' ? params.id : undefined;
   
   const baseUrl = "https://deningeorge.vercel.app";
+  const SHEETDB_URL = "https://sheetdb.io/api/v1/tgo9mz1m8qunj";
   
-  // 2. Logic for unique content
-  const personName = id ? id.charAt(0).toUpperCase() + id.slice(1) : "";
+  let displayName = "";
+
+  // 2. Fetch the real name from SheetDB for the preview
+  if (id) {
+    try {
+      // Use a shorter timeout or limit for metadata fetch to keep it fast
+      const response = await fetch(`${SHEETDB_URL}/search?id=${id}`, {
+        next: { revalidate: 3600 } // Cache for 1 hour to stay fast
+      });
+      const data = await response.json();
+      if (data && data.length > 0) {
+        displayName = data[0].name;
+      }
+    } catch (error) {
+      console.error("Metadata Fetch Error:", error);
+    }
+  }
+
+  // 3. Fallback to capitalized ID if the database fetch fails
+  const personName = displayName || (id ? id.charAt(0).toUpperCase() + id.slice(1) : "");
+  
   const dynamicTitle = id ? `A Christmas Message for ${personName}` : "A Christmas Message";
   const dynamicDesc = id 
-    ? `Denin has sent a special Christmas card to ${personName}.` 
+    ? `Denin has sent a special Christmas card to ${personName}. Open to view.` 
     : "Celebrating the Birth of Christ with a special message.";
 
   const shareUrl = id ? `${baseUrl}/?id=${id}` : baseUrl;
@@ -40,7 +60,7 @@ export async function generateMetadata({
           url: `${baseUrl}/thumbnail.jpg`,
           width: 1200,
           height: 630,
-          alt: "A Blessed Christmas",
+          alt: `Christmas Card for ${personName}`,
         },
       ],
       type: "website",
