@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import React, { Suspense } from "react";
-import CardClientContent from "./CardClientContent"; // We will move your current code here
+import CardClientContent from "./CardClientContent";
 
 // --- SERVER SIDE METADATA ---
 export async function generateMetadata({ 
@@ -11,12 +11,17 @@ export async function generateMetadata({
   const id = searchParams.id;
   const baseUrl = "https://deningeorge.vercel.app";
   
-  // This is the magic line: it tells Messenger exactly where to go when the image is clicked
+  // This ensures Messenger knows exactly where to go when the image is clicked
   const shareUrl = id ? `${baseUrl}/?id=${id}` : baseUrl;
 
   return {
     title: "A Christmas Message",
     description: "Celebrating the Birth of Christ",
+    // --- THIS IS THE FIX ---
+    alternates: {
+      canonical: shareUrl,
+    },
+    // ------------------------
     openGraph: {
       title: "A Christmas Card from Denin",
       description: "A special message for you this Christmas season from Denin.",
