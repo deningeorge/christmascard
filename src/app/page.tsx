@@ -153,7 +153,7 @@ function CardContent() {
               <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ duration: 4, repeat: Infinity }}>
                 <Star className="w-12 h-12 text-holy-gold drop-shadow-[0_0_15px_rgba(212,175,55,0.8)]" fill="currentColor" />
               </motion.div>
-              <h1 className="font-serif text-5xl text-holy-white leading-tight">A Blessed<br />Christmas Card</h1>
+              <h1 className="font-serif text-5xl text-holy-white leading-tight">A Special<br />Christmas Card</h1>
 
               {/* 2. Only show the name once loaded to prevent flashing */}
               <div className="min-h-[2rem] flex items-center justify-center">
