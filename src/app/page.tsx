@@ -39,7 +39,7 @@ export async function generateMetadata({
   
   const dynamicTitle = id ? `A Christmas Message for ${personName}` : "A Christmas Message";
   const dynamicDesc = id 
-    ? `Denin has sent a special Christmas card to ${personName}. Open to view.` 
+    ? `Here is a special Christmas Card for ${personName} from Denin. Open to view.` 
     : "Celebrating the Birth of Christ with a special message.";
 
   const shareUrl = id ? `${baseUrl}/?id=${id}` : baseUrl;
