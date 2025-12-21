@@ -20,7 +20,6 @@ export const metadata: Metadata = {
   openGraph: {
     title: "A Christmas Card from Denin",
     description: "A special message for you this Christmas season from Denin.",
-    url: "https://deningeorge.vercel.app",
     siteName: "Christmas Card from Denin",
     images: [
       {
