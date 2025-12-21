@@ -4,10 +4,11 @@ import React, { useState, useRef, useEffect, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Volume2, VolumeX, Star, Loader2, RotateCcw } from "lucide-react";
 import { useSearchParams } from "next/navigation";
+// 1. Import the confetti library
+import confetti from "canvas-confetti";
 
-// --- Data: Bible Verses ---
+// ... (VERSES, SHEETDB_URL, and Snow component remain the same)
 const VERSES = [{ ref: "Luke 2:11", text: "For unto you is born this day in the city of David a Saviour, which is Christ the Lord." }];
-
 const SHEETDB_URL = "https://sheetdb.io/api/v1/tgo9mz1m8qunj";
 
 const Snow = () => {
@@ -41,8 +42,6 @@ function CardContent() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
-  
-  // 1. Initialize as empty to prevent "Kaye" flash
   const [recipientName, setRecipientName] = useState("");
   const [customMessage, setCustomMessage] = useState("");
   const [isLoadingData, setIsLoadingData] = useState(true);
@@ -54,7 +53,6 @@ function CardContent() {
 
   useEffect(() => {
     async function loadPersonalizedData() {
-      // Default fallback data
       const defaultName = "Kaye";
       const defaultMsg = "Wishing you a joyful Christmas and a wonderful start to the year 2026.\n\nMay this season bring happiness, warmth, and many new memories.";
 
@@ -68,12 +66,10 @@ function CardContent() {
       try {
         const response = await fetch(`${SHEETDB_URL}/search?id=${userId}`);
         const data = await response.json();
-        
         if (data && data.length > 0) {
           setRecipientName(data[0].name);
           setCustomMessage(data[0].message);
         } else {
-          // If ID is in URL but not found in Sheet
           setRecipientName(defaultName);
           setCustomMessage(defaultMsg);
         }
@@ -85,7 +81,6 @@ function CardContent() {
         setIsLoadingData(false);
       }
     }
-
     loadPersonalizedData();
   }, [userId]);
 
@@ -95,15 +90,40 @@ function CardContent() {
     return () => clearTimeout(timer);
   }, []);
 
+// 2. Updated handleOpen with a Single Snow Burst
   const handleOpen = () => {
     setIsOpen(true);
     setIsMuted(false);
+
+    const colors = ["#ffffff", "#D4AF37", "#f8f8ff"];
+
+    // Left side burst
+    confetti({
+      particleCount: 40,
+      angle: 60,
+      spread: 55,
+      origin: { x: 0, y: 0.8 }, // Bottom-left
+      colors: colors,
+      shapes: ['circle'],
+      scalar: 0.8, // Makes particles slightly smaller like snow
+    });
+
+    // Right side burst
+    confetti({
+      particleCount: 40,
+      angle: 120,
+      spread: 55,
+      origin: { x: 1, y: 0.8 }, // Bottom-right
+      colors: colors,
+      shapes: ['circle'],
+      scalar: 0.8,
+    });
+
     if (audioRef.current) {
       audioRef.current.volume = 0.4;
       audioRef.current.play().catch(() => {});
     }
   };
-
   const handleReplay = () => {
     setIsOpen(false);
     setIsMuted(true);
@@ -155,7 +175,6 @@ function CardContent() {
               </motion.div>
               <h1 className="font-serif text-5xl text-holy-white leading-tight">A Special<br />Christmas Card</h1>
 
-              {/* 2. Only show the name once loaded to prevent flashing */}
               <div className="min-h-[2rem] flex items-center justify-center">
                 {isLoadingData ? (
                   <div className="w-24 h-6 bg-holy-gold/10 animate-pulse rounded-md" />
