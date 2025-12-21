@@ -36,11 +36,11 @@ const Snow = () => {
   );
 };
 
-// Renamed to CardClientContent to match the import in page.tsx
 export default function CardClientContent() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+  const [isAudioLoaded, setIsAudioLoaded] = useState(false); // New Audio Gate
   const [recipientName, setRecipientName] = useState("");
   const [customMessage, setCustomMessage] = useState("");
   const [isLoadingData, setIsLoadingData] = useState(true);
@@ -50,21 +50,26 @@ export default function CardClientContent() {
   const searchParams = useSearchParams();
   const userId = searchParams.get("id");
 
-  // ADD THE NEW EFFECT HERE:
+  // Load audio and set safety fallbacks
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.load();
     }
+    
+    // Safety timers: Ensure button unlocks even if assets take too long
+    const videoTimer = setTimeout(() => setIsVideoLoaded(true), 4000);
+    const audioTimer = setTimeout(() => setIsAudioLoaded(true), 5000);
+
+    return () => {
+      clearTimeout(videoTimer);
+      clearTimeout(audioTimer);
+    };
   }, []);
 
   useEffect(() => {
     async function loadPersonalizedData() {
-      // SAFETY NET: Check URL first, then check phone memory
       const savedId = userId || sessionStorage.getItem("christmas_card_id");
-      
-      if (userId) {
-        sessionStorage.setItem("christmas_card_id", userId);
-      }
+      if (userId) sessionStorage.setItem("christmas_card_id", userId);
 
       const defaultName = "Kaye";
       const defaultMsg = "Wishing you a joyful Christmas and a wonderful start to the year 2026.\n\nMay this season bring happiness, warmth, and many new memories.";
@@ -97,17 +102,12 @@ export default function CardClientContent() {
     loadPersonalizedData();
   }, [userId]);
 
-  useEffect(() => {
-    const timer = setTimeout(() => setIsVideoLoaded(true), 3500);
-    if (videoRef.current && videoRef.current.readyState >= 2) setIsVideoLoaded(true);
-    return () => clearTimeout(timer);
-  }, []);
-
   const handleOpen = () => {
     setIsOpen(true);
     setIsMuted(false);
     const colors = ["#ffffff", "#D4AF37", "#f8f8ff"];
 
+    // Snow Burst Confetti
     confetti({
       particleCount: 40,
       angle: 60,
@@ -129,7 +129,7 @@ export default function CardClientContent() {
     });
 
     if (audioRef.current) {
-      audioRef.current.volume = 1.0;
+      audioRef.current.volume = 1.0; // Full volume fix
       audioRef.current.play().catch(() => {});
     }
   };
@@ -151,6 +151,9 @@ export default function CardClientContent() {
     }
   };
 
+  // Determine if all gates are ready
+  const isReady = isVideoLoaded && !isLoadingData && isAudioLoaded;
+
   return (
     <div className="relative h-[100dvh] w-full flex items-center justify-center bg-holy-blue overflow-hidden">
       <video
@@ -166,7 +169,16 @@ export default function CardClientContent() {
       </video>
 
       <div className="absolute inset-0 bg-linear-to-b from-black/40 via-transparent to-holy-blue/90 z-1" />
-      <audio ref={audioRef} loop src="/music/music.mp3" preload="auto" />
+      
+      {/* Audio with Preload and Readiness Check */}
+      <audio 
+        ref={audioRef} 
+        loop 
+        src="/music/music.mp3" 
+        preload="auto" 
+        onCanPlayThrough={() => setIsAudioLoaded(true)}
+      />
+      
       <Snow />
 
       <AnimatePresence mode="wait">
@@ -205,11 +217,11 @@ export default function CardClientContent() {
             <div className="flex flex-col items-center gap-3 mb-6">
               <button
                 onClick={handleOpen}
-                disabled={!isVideoLoaded || isLoadingData}
+                disabled={!isReady}
                 className="group relative px-10 h-14 rounded-full font-serif text-lg tracking-[0.15em] text-holy-cream bg-holy-red border border-holy-gold/30 active:scale-95 transition-all duration-300 overflow-hidden animate-holyPulse disabled:opacity-70 flex items-center justify-center"
               >
                 <span className="relative z-10 flex items-center justify-center gap-3">
-                  {(!isVideoLoaded || isLoadingData) ? (
+                  {!isReady ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin text-holy-gold" />
                       <span className="text-sm tracking-widest uppercase">Preparing</span>
