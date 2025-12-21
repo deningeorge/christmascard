@@ -2,6 +2,10 @@ import { Metadata } from "next";
 import React, { Suspense } from "react";
 import CardClientContent from "./CardClientContent";
 
+// --- ADD THIS LINE TO FIX THE FACEBOOK CRAWLER ---
+export const dynamic = "force-dynamic"; 
+// ------------------------------------------------
+
 // --- SERVER SIDE METADATA ---
 export async function generateMetadata({ 
   searchParams 
