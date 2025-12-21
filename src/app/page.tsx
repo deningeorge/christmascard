@@ -2,11 +2,8 @@ import { Metadata } from "next";
 import React, { Suspense } from "react";
 import CardClientContent from "./CardClientContent";
 
-// --- ADD THIS LINE TO FIX THE FACEBOOK CRAWLER ---
 export const dynamic = "force-dynamic"; 
-// ------------------------------------------------
 
-// --- SERVER SIDE METADATA ---
 export async function generateMetadata({ 
   searchParams 
 }: { 
@@ -15,20 +12,25 @@ export async function generateMetadata({
   const id = searchParams.id;
   const baseUrl = "https://deningeorge.vercel.app";
   
-  // This ensures Messenger knows exactly where to go when the image is clicked
+  // 1. Create a unique title for each person
+  // If id is 'tin', name becomes 'Tin'
+  const personName = id ? id.charAt(0).toUpperCase() + id.slice(1) : "";
+  const dynamicTitle = id ? `A Christmas Message for ${personName}` : "A Christmas Message";
+  const dynamicDesc = id 
+    ? `Denin has sent a special Christmas card to ${personName}. Open to view.` 
+    : "Celebrating the Birth of Christ with a special message.";
+
   const shareUrl = id ? `${baseUrl}/?id=${id}` : baseUrl;
 
   return {
-    title: "A Christmas Message",
-    description: "Celebrating the Birth of Christ",
-    // --- THIS IS THE FIX ---
+    title: dynamicTitle,
+    description: dynamicDesc,
     alternates: {
       canonical: shareUrl,
     },
-    // ------------------------
     openGraph: {
-      title: "A Christmas Card from Denin",
-      description: "A special message for you this Christmas season from Denin.",
+      title: dynamicTitle, // Crucial: Makes the link unique to Facebook
+      description: dynamicDesc,
       url: shareUrl, 
       siteName: "Christmas Card",
       images: [
@@ -43,7 +45,8 @@ export async function generateMetadata({
     },
     twitter: {
       card: "summary_large_image",
-      title: "A Blessed Christmas",
+      title: dynamicTitle,
+      description: dynamicDesc,
       images: [`${baseUrl}/thumbnail.jpg`],
     },
   };
