@@ -50,6 +50,13 @@ export default function CardClientContent() {
   const searchParams = useSearchParams();
   const userId = searchParams.get("id");
 
+  // ADD THE NEW EFFECT HERE:
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.load();
+    }
+  }, []);
+
   useEffect(() => {
     async function loadPersonalizedData() {
       // SAFETY NET: Check URL first, then check phone memory
@@ -122,7 +129,7 @@ export default function CardClientContent() {
     });
 
     if (audioRef.current) {
-      audioRef.current.volume = 0.4;
+      audioRef.current.volume = 1.0;
       audioRef.current.play().catch(() => {});
     }
   };
@@ -159,7 +166,7 @@ export default function CardClientContent() {
       </video>
 
       <div className="absolute inset-0 bg-linear-to-b from-black/40 via-transparent to-holy-blue/90 z-1" />
-      <audio ref={audioRef} loop src="/music/music.mp3" />
+      <audio ref={audioRef} loop src="/music/music.mp3" preload="auto" />
       <Snow />
 
       <AnimatePresence mode="wait">
